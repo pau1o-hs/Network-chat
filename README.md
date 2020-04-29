@@ -7,7 +7,7 @@ To open the server, run:
 $ make run_server
 ```
 
-To open the client, run:
+To open clients, run in N (1<= N <= 30) terminals:
 ```
 $ make run_client
 ```
@@ -23,6 +23,6 @@ $ stty icanon
 * Visual Studio Code
 * Ubuntu 18.04.1 LTS
 
-### Authors
+## Authors
 * Bruno dos Santos
 * Paulo Henrique da Silva, NºUSP 10734515
