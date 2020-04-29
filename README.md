@@ -21,7 +21,7 @@ $ stty icanon
 
 ## Built with
 * Visual Studio Code
-* Ubuntu 18.04.1 LTS
+* Ubuntu 18.04.1 LTS (WSL)
 
 ## Authors
 * Bruno dos Santos
