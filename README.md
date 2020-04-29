@@ -19,6 +19,9 @@ $ make run_client
 $ stty icanon
 ```
 
+## Preview
+![Image description](https://github.com/pau1o-hs/Network-chat/blob/master/src/img_preview.png)
+
 ## Built with
 * Visual Studio Code
 * Ubuntu 18.04.1 LTS (WSL)
