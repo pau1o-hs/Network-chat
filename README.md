@@ -24,5 +24,5 @@ $ stty icanon
 * Ubuntu 18.04.1 LTS (WSL)
 
 ## Authors
-* Bruno dos Santos
-* Paulo Henrique da Silva, NºUSP 10734515
+* **Bruno dos Santos**
+* **Paulo Henrique da Silva**, NºUSP 10734515
