@@ -98,8 +98,6 @@ int main()
 
 			for (int i = 0; i <= (int) (userInput.size()) / 4097; i++)
 			{
-				cout << (int) userInput.size() << ' ' << i << endl;
-
 				// Send to server
 				int sendRes = send(sock, userInput.c_str() + (4096 * i), sizeof(char) * 4096, 0);
 				if (sendRes == -1)
