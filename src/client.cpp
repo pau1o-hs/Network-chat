@@ -1,11 +1,13 @@
 #include <iostream>
-#include <sys/types.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <string.h>
 #include <string>
+#include <limits.h>
 
 using namespace std;
 
@@ -17,6 +19,7 @@ void getCommand(string& command)
 	{
 		cout << "[Commands]" << endl;
 		cout << "/quit\t" << "Exit program" << endl;
+		cout << endl;
 		return;
 	}
 
@@ -40,11 +43,11 @@ int main()
 	}
 
 	// Create a hint structure for the server connect with
-	int port = 54000;
-	string ipAddress;
+	int port = 5400;
+	string ipAddress = "127.0.0.1";
 
-	cout << "Type server IPv4: ";
-	getline(cin, ipAddress);
+	// cout << "Type server IPv4: ";
+	// getline(cin, ipAddress);
 
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
@@ -57,38 +60,80 @@ int main()
 		return cerr << "Couldn't connect to the server!" << endl, -1;
 	else cout << "Joined the server!" << endl;
 
-	cout << "Type [/help] to learn the server commands" << endl;
+	cout << "Type [/help] to learn the server commands" << endl << endl;
+
+	// FD_SET Stuff
+	int activity, bytesReceived;
+	fd_set readfds;
 
 	// While loop
 	char buf[4096];
 	string userInput;
 
-	do {
-		// Enter line of text
+	while (true) 
+	{
 		cout << "> ";
-		getline(cin, userInput);
+		fflush(stdout);
 
-		if (userInput[0] == '/') 
-		{
-			getCommand(userInput);
-			continue;
+		/* Watch stdin (fd 0) to see when it has input. */
+		FD_ZERO(&readfds);
+
+		FD_SET(STDIN_FILENO, &readfds);
+		FD_SET(sock, &readfds);
+
+		activity = select(sock + 1, &readfds, NULL, NULL, NULL);
+
+		if ((activity < 0) && (errno!=EINTR))   
+		{   
+			cout << "select error" << endl;
 		}
 
-		// Send to server
-		int sendRes = send(sock, userInput.c_str(), userInput.size() + 1, 0);
-		if (sendRes == -1)
+		if (FD_ISSET(STDIN_FILENO, &readfds))
 		{
-			cout << "Could not send to server! Whoops!\r\n";
-			continue;
+			// Enter line of text
+			getline(cin, userInput);
+
+			if (userInput[0] == '/') 
+			{
+				getCommand(userInput);
+				continue;
+			}
+
+			for (int i = 0; i <= (int) (userInput.size()) / 4097; i++)
+			{
+				cout << (int) userInput.size() << ' ' << i << endl;
+				
+				// Send to server
+				int sendRes = send(sock, userInput.c_str() + (4096 * i), sizeof(char) * 4096, 0);
+				if (sendRes == -1)
+				{
+					cout << "Could not send to server! Whoops!\r\n";
+					continue;
+				}
+			}
 		}
 
-		// Wait for server response
+		// Server response
 		memset(buf, 0, 4096);
-		int bytesReceived = recv(sock, buf, 4096, 0);
 
-		// Display server response
-		cout << "[Server received] " << string(buf, bytesReceived) << "\r\n";
-	} while (true);
+		if (FD_ISSET(sock, &readfds))
+		{
+			if ((bytesReceived = read(sock, buf, 4096)) == 0)
+			{
+				cout << endl << "[Server closed]" << endl;
+				exit(0);
+			}
+
+			buf[bytesReceived] = '\0';
+
+			// Display server response
+			cout << "\r" << "[Server Broadcast] " << buf << endl;
+			// cout << "> ";
+		}
+
+		// bytesReceived = recv(sock, buf, 4096, 0);
+		// cout << "[Server sent] " << string(buf, bytesReceived) << endl;
+	}
 	
 	// Close the socket
 	close(sock);
