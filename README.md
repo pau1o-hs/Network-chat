@@ -25,4 +25,4 @@ $ stty icanon
 
 ### Authors
 * Bruno dos Santos
-* Paulo Henrique da Silva, Nº 10734515
+* Paulo Henrique da Silva, NºUSP 10734515
