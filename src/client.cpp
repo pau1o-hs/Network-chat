@@ -46,9 +46,6 @@ int main()
 	int port = 5400;
 	string ipAddress = "127.0.0.1";
 
-	// cout << "Type server IPv4: ";
-	// getline(cin, ipAddress);
-
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
@@ -102,7 +99,7 @@ int main()
 			for (int i = 0; i <= (int) (userInput.size()) / 4097; i++)
 			{
 				cout << (int) userInput.size() << ' ' << i << endl;
-				
+
 				// Send to server
 				int sendRes = send(sock, userInput.c_str() + (4096 * i), sizeof(char) * 4096, 0);
 				if (sendRes == -1)
@@ -130,9 +127,6 @@ int main()
 			cout << "\r" << "[Server Broadcast] " << buf << endl;
 			// cout << "> ";
 		}
-
-		// bytesReceived = recv(sock, buf, 4096, 0);
-		// cout << "[Server sent] " << string(buf, bytesReceived) << endl;
 	}
 	
 	// Close the socket

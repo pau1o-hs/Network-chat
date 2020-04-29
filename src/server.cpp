@@ -160,20 +160,6 @@ int main()
 						send(clientSocket[j], buf, strlen(buf), 0);
 					}
 				}
-
-				// // Wait for a message
-				// int bytesRecv = recv(clientSocket[i], buf, 4096, 0);
-				// if (bytesRecv == -1)
-				// {
-				// 	cerr << "There was a connection issue" << endl;
-				// 	break;
-				// }
-
-				// // Display message
-				// cout << "Received: " << string(buf, 0, bytesRecv) << endl;
-
-				// // Resend message
-				// send(clientSocket[i], buf, bytesRecv + 1, 0);
 			}
 		}
 	}
