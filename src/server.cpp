@@ -11,6 +11,32 @@
 using namespace std;
 
 #define MAX_CLIENTS 30
+const string SERVER_WELCOME = "[Server] Welcome! Type [/help] to learn the server commands!\n";
+
+void Commands(string& command, int clientSocket)
+{	
+	string response = "";
+	if (command == "/help")
+	{
+		response += "[Server] Commands:\n";
+		response += "[Server] /ping\tpong\n";
+		response += "[Server] /quit\tExit program\n";
+	}
+
+	if (command == "/ping") 
+	{
+		response += "[Server] pong";
+	}
+
+	if (response == "")
+	{
+		response += "[Server] Command not found\n";
+		response += "[Server] Type [/help] to learn the server commands\n";
+	}
+
+	send(clientSocket, response.c_str(), (int) response.size(), 0);
+	return;
+}
 
 int main()
 {
@@ -84,8 +110,8 @@ int main()
 		} 
 
 		//wait for an activity on one of the sockets, timeout is NULL,  
-        	//so wait indefinitely  
-        	activity = select(max_sd + 1, &readfds, NULL, NULL, NULL); 
+		//so wait indefinitely  
+		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL); 
 
 		if ((activity < 0) && (errno!=EINTR))   
 		{   
@@ -121,6 +147,7 @@ int main()
 					cout << host << " connected on " << ntohs(client[connClients].sin_port) << endl;
 				}
 
+				send(clientSocket[connClients], SERVER_WELCOME.c_str(), (int) SERVER_WELCOME.size(), 0);
 				connClients++;
 			}
 		}
@@ -134,9 +161,9 @@ int main()
 			sd = clientSocket[i];
 
 			if (FD_ISSET(sd, &readfds))   
-            		{
+            {
 				if ((valread = read(sd, buf, 4096)) == 0)   
-                		{  
+                {  
 					//Somebody disconnected , get his details and print  
 					getpeername(sd, (struct sockaddr*)&hint, (socklen_t*)&addrlen);   
 					cout << inet_ntoa(hint.sin_addr) << " disconnected" << endl;   
@@ -151,13 +178,32 @@ int main()
 				{
 					//set the string terminating NULL byte on the end  
 					//of the data read  
-					buf[valread] = '\0';   
+					buf[valread] = '\0';
+					string message(buf);
+
 					cout << "Received: " << buf << endl;
+
+					if (message[0] == '/')
+					{
+						Commands(message, clientSocket[i]);
+						continue;
+					}
+
+					// Broadcast message
+					char userID[8] = "User XX";
+					userID[5] = (i / 10) + '0';
+					userID[6] = (i % 10) + '0';
+					userID[7] = '\0';
 
 					for (int j = 0; j < connClients; j++)
 					{
-						if (i == j) continue;
-						send(clientSocket[j], buf, strlen(buf), 0);
+						// if (i == j) continue;
+						send(clientSocket[j], userID, 8, 0);
+
+						for (int i = 0; i <= (int) (message.size()) / 4097; i++)
+						{
+							send(clientSocket[j], message.c_str() + (4096 * i), 4096, 0);
+						}
 					}
 				}
 			}

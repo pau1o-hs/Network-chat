@@ -8,33 +8,15 @@
 #include <string.h>
 #include <string>
 #include <limits.h>
+#include <signal.h>
 
 using namespace std;
 
-void getCommand(string& command)
-{
-	cout << endl;
-	
-	if (command == "/help")
-	{
-		cout << "[Commands]" << endl;
-		cout << "/quit\t" << "Exit program" << endl;
-		cout << endl;
-		return;
-	}
-
-	if (command == "/quit") 
-	{
-		exit(0);
-	}
-
-	cout << "Command not found" << endl;
-	cout << "Type [/help] to learn the server commands" << endl;
-	return;
-}
-
 int main()
 {
+	// IGNORE CTRL+C
+	signal(SIGINT, SIG_IGN);
+
 	// Create a socket
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == -1)
@@ -51,13 +33,20 @@ int main()
 	hint.sin_port = htons(port);
 	inet_pton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
 
+	cout << "[Local] Type [/connect] to establish a connection to the server" << endl;
+	string str = "";
+	while (str != "/connect") getline(cin, str);
+
 	// Connect to the server host socket
 	int connectRes = connect(sock, (sockaddr*) &hint, sizeof(hint));
-	if (connectRes == -1)
-		return cerr << "Couldn't connect to the server!" << endl, -1;
-	else cout << "Joined the server!" << endl;
+	while (connectRes == -1)
+	{
+		if (connectRes == -1) cerr << "Couldn't connect to the server!" << endl;
+		connectRes = connect(sock, (sockaddr*) &hint, sizeof(hint));
+	}
+	// else cout << "Joined the server!" << endl;
 
-	cout << "Type [/help] to learn the server commands" << endl << endl;
+	// cout << "Type [/help] to learn the server commands" << endl << endl;
 
 	// FD_SET Stuff
 	int activity, bytesReceived;
@@ -66,6 +55,14 @@ int main()
 	// While loop
 	char buf[4096];
 	string userInput;
+
+	// GET SERVER WELCOME
+	FD_ISSET(sock, &readfds);
+
+	bytesReceived = read(sock, buf, 4096);
+	buf[bytesReceived] = '\0';
+
+	cout << buf << endl;
 
 	while (true) 
 	{
@@ -90,21 +87,29 @@ int main()
 			// Enter line of text
 			getline(cin, userInput);
 
-			if (userInput[0] == '/') 
-			{
-				getCommand(userInput);
-				continue;
-			}
+			if (userInput == "/quit") goto DISCONNECT;
 
 			for (int i = 0; i <= (int) (userInput.size()) / 4097; i++)
 			{
 				// Send to server
-				int sendRes = send(sock, userInput.c_str() + (4096 * i), sizeof(char) * 4096, 0);
+				int sendRes = send(sock, userInput.c_str() + (4096 * i), 4096, 0);
 				if (sendRes == -1)
 				{
 					cout << "Could not send to server! Whoops!\r\n";
 					continue;
 				}
+			}
+
+			// RECEIVE COMMAND REQUEST
+			if (userInput[0] == '/')
+			{
+				FD_ISSET(sock, &readfds);
+
+				bytesReceived = read(sock, buf, 4096);
+				buf[bytesReceived] = '\0';
+
+				cout << buf << endl;
+				continue;
 			}
 		}
 
@@ -113,22 +118,30 @@ int main()
 
 		if (FD_ISSET(sock, &readfds))
 		{
-			if ((bytesReceived = read(sock, buf, 4096)) == 0)
+			if ((bytesReceived = read(sock, buf, 8)) == 0)
 			{
-				cout << endl << "[Server closed]" << endl;
+				cout << endl << "[Local] Server closed" << endl;
 				exit(0);
 			}
 
 			buf[bytesReceived] = '\0';
 
 			// Display server response
-			cout << "\r" << "[Server Broadcast] " << buf << endl;
-			// cout << "> ";
+			cout << "\r" << '[' << buf << "] " /*<< message.substr(7) << endl*/;
+
+			FD_ISSET(sock, &readfds);
+
+			bytesReceived = read(sock, buf, 4096);
+			buf[bytesReceived] = '\0';
+
+			cout << buf << endl;
 		}
 	}
-	
+		
+DISCONNECT:
 	// Close the socket
 	close(sock);
+	cout << "[Local] Goodbye\n";
 
 	return 0;
 }
