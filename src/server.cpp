@@ -205,25 +205,25 @@ int main()
 							send(clientSocket[j], userID, 8, 0);
 							send(clientSocket[j], message.c_str() + (4096 * k), 4096, 0);
 
-							// CHECK IF CLIENT RECEIVED THE MESSAGE
-							if (!FD_ISSET(sd, &readfds)) 
-							{
-								k--;
-								attempt++;
+							// // CHECK IF CLIENT RECEIVED THE MESSAGE
+							// if (!FD_ISSET(sd, &readfds)) 
+							// {
+							// 	k--;
+							// 	attempt++;
 
-								if (attempt == 5)
-								{
-									close(clientSocket[j]);
-									clientSocket[j] = 0;
-								}
-							}
-							else {
-								attempt = 0;
+							// 	if (attempt == 5)
+							// 	{
+							// 		close(clientSocket[j]);
+							// 		clientSocket[j] = 0;
+							// 	}
+							// }
+							// else {
+							// 	attempt = 0;
 								
-								valread = read(sd, buf, 20);
-								buf[valread] = '\0';
-								cout << "Client " << clientSocket[j] << ' ' << buf << endl;
-							}
+							// 	valread = read(sd, buf, 20);
+							// 	buf[valread] = '\0';
+							// 	cout << "Client " << clientSocket[j] << ' ' << buf << endl;
+							// }
 						}
 					}
 				}
