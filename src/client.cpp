@@ -137,7 +137,7 @@ int main()
 
 			cout << buf << endl;
 
-			send(sock, MACRO_RECEIVED, 20, 0);
+			// send(sock, MACRO_RECEIVED, 20, 0);
 		}
 	}
 		
