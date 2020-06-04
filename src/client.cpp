@@ -12,6 +12,7 @@
 
 using namespace std;
 
+char MACRO_RECEIVED[20] = "Received";
 int main()
 {
 	// IGNORE CTRL+C
@@ -127,7 +128,7 @@ int main()
 			buf[bytesReceived] = '\0';
 
 			// Display server response
-			cout << "\r" << '[' << buf << "] " /*<< message.substr(7) << endl*/;
+			cout << "\r" << '[' << buf << "] ";
 
 			FD_ISSET(sock, &readfds);
 
@@ -135,6 +136,8 @@ int main()
 			buf[bytesReceived] = '\0';
 
 			cout << buf << endl;
+
+			send(sock, MACRO_RECEIVED, 20, 0);
 		}
 	}
 		

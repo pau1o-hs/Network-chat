@@ -198,11 +198,31 @@ int main()
 					for (int j = 0; j < connClients; j++)
 					{
 						// if (i == j) continue;
-						send(clientSocket[j], userID, 8, 0);
+						int attempt = 0;
 
-						for (int i = 0; i <= (int) (message.size()) / 4097; i++)
+						for (int k = 0; k <= (int) (message.size()) / 4097; k++)
 						{
-							send(clientSocket[j], message.c_str() + (4096 * i), 4096, 0);
+							send(clientSocket[j], userID, 8, 0);
+							send(clientSocket[j], message.c_str() + (4096 * k), 4096, 0);
+
+							if (!FD_ISSET(sd, &readfds)) 
+							{
+								k--;
+								attempt++;
+
+								if (attempt == 5)
+								{
+									close(clientSocket[j]);
+									clientSocket[j] = 0;
+								}
+							}
+							else {
+								attempt = 0;
+								
+								valread = read(sd, buf, 20);
+								buf[valread] = '\0';
+								cout << "Client " << clientSocket[j] << ' ' << buf << endl;
+							}
 						}
 					}
 				}
