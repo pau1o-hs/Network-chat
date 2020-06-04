@@ -205,6 +205,7 @@ int main()
 							send(clientSocket[j], userID, 8, 0);
 							send(clientSocket[j], message.c_str() + (4096 * k), 4096, 0);
 
+							// CHECK IF CLIENT RECEIVED THE MESSAGE
 							if (!FD_ISSET(sd, &readfds)) 
 							{
 								k--;
