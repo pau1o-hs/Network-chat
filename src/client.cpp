@@ -12,7 +12,8 @@
 
 using namespace std;
 
-char MACRO_RECEIVED[20] = "Received";
+char MACRO_RECEIVED[20] = "Received\0";
+
 int main()
 {
 	// IGNORE CTRL+C
@@ -119,25 +120,25 @@ int main()
 
 		if (FD_ISSET(sock, &readfds))
 		{
-			if ((bytesReceived = read(sock, buf, 8)) == 0)
+			if ((bytesReceived = read(sock, buf, 51)) == 0)
 			{
 				cout << endl << "[Local] Server closed" << endl;
 				exit(0);
 			}
 
+			// Display server response
+			// Username
 			buf[bytesReceived] = '\0';
 
-			// Display server response
 			cout << "\r" << '[' << buf << "] ";
 
+			// Message
 			FD_ISSET(sock, &readfds);
 
 			bytesReceived = read(sock, buf, 4096);
 			buf[bytesReceived] = '\0';
 
 			cout << buf << endl;
-
-			// send(sock, MACRO_RECEIVED, 20, 0);
 		}
 	}
 		
