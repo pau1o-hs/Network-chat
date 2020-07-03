@@ -30,7 +30,7 @@ int main()
 	int port;
 	string ipAddress = "";
 
-	cout << "[Local] Type [/connect ip:port] to establish a connection to the server" << endl;
+	cout << "[Local] Type [/connect ip:5400] to establish a connection to the server" << endl;
 	string str = "";
 	while (str.find("/connect ") == string::npos) getline(cin, str);
 
