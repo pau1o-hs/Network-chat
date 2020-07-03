@@ -27,28 +27,30 @@ int main()
 	}
 
 	// Create a hint structure for the server connect with
-	int port = 5400;
-	string ipAddress = "127.0.0.1";
+	int port;
+	string ipAddress = "";
+
+	cout << "[Local] Type [/connect ip:port] to establish a connection to the server" << endl;
+	string str = "";
+	while (str.find("/connect ") == string::npos) getline(cin, str);
+
+	int found = str.find_last_of(":");
+
+	ipAddress = str.substr(9, found - 9);
+	port = stoi(str.substr(found+1));
 
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
 	inet_pton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
 
-	cout << "[Local] Type [/connect] to establish a connection to the server" << endl;
-	string str = "";
-	while (str != "/connect") getline(cin, str);
-
 	// Connect to the server host socket
 	int connectRes = connect(sock, (sockaddr*) &hint, sizeof(hint));
-	while (connectRes == -1)
+	if (connectRes == -1)
 	{
 		if (connectRes == -1) cerr << "Couldn't connect to the server!" << endl;
-		connectRes = connect(sock, (sockaddr*) &hint, sizeof(hint));
+		exit(0);
 	}
-	// else cout << "Joined the server!" << endl;
-
-	// cout << "Type [/help] to learn the server commands" << endl << endl;
 
 	// FD_SET Stuff
 	int activity, bytesReceived;
