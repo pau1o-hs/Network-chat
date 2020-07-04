@@ -205,7 +205,7 @@ void Commands(string& command, int clientIndex)
 			}
 		}
 
-		inet_ntop(AF_INET, &client[i].sin_addr, host, NI_MAXHOST);
+		inet_ntop(AF_INET, &client[i].sin_addr, host, INET_ADDRSTRLEN);
 		string ip(host);
 
 		response += "IP: " + ip + " connected on " + to_string(ntohs(client[i].sin_port)) + "\n";
@@ -380,7 +380,7 @@ int main()
 					else
 					{
 						cout << "Received: " << buf << endl;
-						
+
 						// Broadcast message
 						for (int j = 0; j < connClients; j++)
 						{
