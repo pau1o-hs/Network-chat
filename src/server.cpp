@@ -14,7 +14,7 @@
 using namespace std;
 
 #define MAX_CLIENTS 30
-const string SERVER_WELCOME = "[Server] Welcome! Type [/help] to learn the server commands!\n";
+const string SERVER_WELCOME = "\n[Server] Welcome! Type [/help] to learn the server commands!\nPlease insert a nickname with [/nickname username]\n";
 
 // { Socket; { channelName; isAdmin } }
 typedef struct clientProperties
@@ -291,7 +291,7 @@ int main()
 				FD_SET(sd, &readfds);   
 				
 			//highest file descriptor number, need it for the select function  
-			if(sd > max_sd)   
+			if(sd > max_sd)
 				max_sd = sd; 
 		} 
 
@@ -368,26 +368,32 @@ int main()
 					buf[valread] = '\0';
 					string message(buf);
 
-					cout << "Received: " << buf << endl;
-
 					if (message[0] == '/')
 					{
 						Commands(message, i);
 						continue;
 					}
-
-					// Broadcast message
-					for (int j = 0; j < connClients; j++)
+					if (message.empty())
 					{
-						if (clientSocket[j].mute.count(clientSocket[i].socket))
-							continue;
-
-						for (int k = 0; k <= (int) (message.size()) / 4097; k++)
+						continue;
+					}
+					else
+					{
+						cout << "Received: " << buf << endl;
+						
+						// Broadcast message
+						for (int j = 0; j < connClients; j++)
 						{
-							if (clientSocket[j].channel == clientSocket[i].channel)
+							if (clientSocket[j].mute.count(clientSocket[i].socket))
+								continue;
+
+							for (int k = 0; k <= (int) (message.size()) / 4097; k++)
 							{
-								send(clientSocket[j].socket, clientSocket[i].nickname.c_str(), 51, 0);
-								send(clientSocket[j].socket, message.c_str() + (4096 * k), 4096, 0);
+								if (clientSocket[j].channel == clientSocket[i].channel)
+								{
+									send(clientSocket[j].socket, clientSocket[i].nickname.c_str(), 51, 0);
+									send(clientSocket[j].socket, message.c_str() + (4096 * k), 4096, 0);
+								}
 							}
 						}
 					}

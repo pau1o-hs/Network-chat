@@ -26,7 +26,6 @@ int main()
 		return 1;
 	}
 
-	// Create a hint structure for the server connect with
 	int port;
 	string ipAddress = "";
 
@@ -38,12 +37,14 @@ int main()
 
 	ipAddress = str.substr(9, found - 9);
 	port = stoi(str.substr(found+1));
-
+	
+	// Create a hint structure for the server connect with
 	sockaddr_in hint;
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
 	inet_pton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
 
+	
 	// Connect to the server host socket
 	int connectRes = connect(sock, (sockaddr*) &hint, sizeof(hint));
 	if (connectRes == -1)
@@ -82,7 +83,7 @@ int main()
 		activity = select(sock + 1, &readfds, NULL, NULL, NULL);
 
 		if ((activity < 0) && (errno!=EINTR))   
-		{   
+		{
 			cout << "select error" << endl;
 		}
 
