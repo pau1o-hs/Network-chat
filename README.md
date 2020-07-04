@@ -1,15 +1,32 @@
 # Network-chat
-A simple LAN network connection using sockets
+An Internet Relay Chat network connection using sockets
 
 ## How to run
-To open the server, run:
+Use serveo.net to expose local servers to the internet through **SSH port forwarding**:
+```
+$ ssh -R 5400:localhost:5400 serveo.net
+(Result) Forwarding TCP connections from serveousercontent.com:5400
+```
+
+To open the **server**, run:
 ```
 $ make run_server
 ```
 
-To open clients, run in N (1<= N <= 30) terminals:
+To open **clients**, run in N (1 <= N <= 30) terminals:
 ```
 $ make run_client
+```
+
+To **connect** the client to the server through the SSH, is needed to convert the domain name to an IP Address:
+```
+In the browser:
+https://www.hcidata.info/host2ip.cgi
+Input: serveousercontent.com
+Output: 159.89.214.31
+
+In the client termianl process:
+/connect 159.89.214.31:5400
 ```
 
 Note: If you desire to copy and paste a message greater than 4096 characters, run:
