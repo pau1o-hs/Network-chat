@@ -25,7 +25,7 @@ https://www.hcidata.info/host2ip.cgi
 Input: serveousercontent.com
 Output: 159.89.214.31
 
-In the client termianl process:
+In the client terminal process:
 /connect 159.89.214.31:5400
 ```
 
